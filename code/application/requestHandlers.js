@@ -32,18 +32,14 @@ function upload(response, request) {
   form.parse(request, function(error, fields, files) {
     console.log("parsing done");
 
-    /* Possible error on Windows systems:
-       tried to rename to an already existing file */
-    fs.rename(files.upload.path, "/tmp/test.png", function(err) {
-      if (err) {
-        fs.unlink("/tmp/test.png");
-        fs.rename(files.upload.path, "/tmp/test.png");
-      }
-    });
-    response.writeHead(200, {"Content-Type": "text/html"});
-    response.write("received image:<br/>");
-    response.write("<img src='/show' />");
-    response.end();
+  fs.createReadStream(files.upload.path).
+    pipe(fs.createWriteStream('/tmp/test.jpg').on('close', function(){
+          response.writeHead(200, {"Content-Type": "text/html"});
+          response.write("received image:<br/>");
+          response.write("<img src='/show' />");
+          response.end();
+       }));
+
   });
 }
 
